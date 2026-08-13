@@ -143,9 +143,11 @@ std::tuple<torch::Tensor, torch::Tensor> reorder_quantize_x(
         CASE_REORDER_X_16(2048) // llama 3.2-1B
         CASE_REORDER_X_16(3072) // llama 3.2-3B
         CASE_REORDER_X_16(4096)
+        CASE_REORDER_X_16(6144)  // Qwen3-1.7B MLP down projection
         CASE_REORDER_X_16(5120)
         CASE_REORDER_X_16(8192)
         CASE_REORDER_X_16(11008)
+        CASE_REORDER_X_16(12288) // Qwen3-8B MLP down projection
         CASE_REORDER_X_16(13824)
         CASE_REORDER_X_16(14336)
 
@@ -190,9 +192,11 @@ std::tuple<torch::Tensor, torch::Tensor> reorder_quantize_w(
         CASE_REORDER_W_16(2048) // llama 3.2-1B
         CASE_REORDER_W_16(3072) // llama 3.2-3B
         CASE_REORDER_W_16(4096)
+        CASE_REORDER_W_16(6144)  // Qwen3-1.7B MLP down projection
         CASE_REORDER_W_16(5120)
         CASE_REORDER_W_16(8192)
         CASE_REORDER_W_16(11008)
+        CASE_REORDER_W_16(12288) // Qwen3-8B MLP down projection
         CASE_REORDER_W_16(13824)
         CASE_REORDER_W_16(14336)
 
