@@ -17,6 +17,9 @@ else()
   message(STATUS "Found PyTorch CMAKE_PREFIX_PATH: ${TORCH_CMAKE_PREFIX_PATH}")
 endif()
 set(CMAKE_PREFIX_PATH ${TORCH_CMAKE_PREFIX_PATH}/../../)
+if(NOT TARGET CUDA::nvToolsExt)
+  add_library(CUDA::nvToolsExt INTERFACE IMPORTED)
+endif()
 find_package(Torch REQUIRED)
 
 find_package(CUDAToolkit REQUIRED)
@@ -27,7 +30,6 @@ find_library(TORCH_PYTHON_LIBRARY torch_python PATHS ${TORCH_CMAKE_PREFIX_PATH}/
 set(CUTLASS_ROOT ../third-party/cutlass)
 
 include_directories(./include)
-include_directories(/usr/local/cuda/include)
 include_directories(${PYTHON_ROOT})
 link_directories(${PYTHON_ROOT}/site-packages/torch/lib)
 include_directories(${PYTHON_ROOT}/site-packages/torch/include)

@@ -297,7 +297,17 @@ def get_act_stats(model, dataloader, device_, metric='mean', seqlen=2048, reorde
     for i in tqdm(range(len(layers)), desc="Processing layers"):
         layer = layers[i].to(device)
         for j in range(nsamples):
-            outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_ids=position_ids)[0]
+            layer_input = inps[j].unsqueeze(0)
+            layer_kwargs = {
+                "attention_mask": attention_mask,
+                "position_ids": position_ids,
+            }
+            # Transformers >= 4.51 supplies RoPE to decoder layers explicitly.
+            if hasattr(model.model, "rotary_emb"):
+                layer_kwargs["position_embeddings"] = model.model.rotary_emb(
+                    layer_input, position_ids
+                )
+            outs[j] = layer(layer_input, **layer_kwargs)[0]
         layers[i] = layer.cpu()
         del layer
         inps, outs = outs, inps
@@ -336,12 +346,22 @@ def get_c4(nsamples, seed, seqlen, tokenizer):
     import random
     import torch
 
-    traindata = load_dataset(
-        'allenai/c4', 'en', 
-        split='validation', 
-        trust_remote_code=True
+    # Reuse the already-cached MR-GPTQ C4 train shard directly.
+    # datasets 4.x hashes data_files differently, so load its Arrow shards.
+    from datasets import Dataset, concatenate_datasets
+    c4_cache_dir = (
+        "/home/pengliang/.cache/huggingface/datasets/allenai___c4/"
+        "default-b04fc8a0b8562884/0.0.0/"
+        "1588ec454efa1a09f29cd18ddd04fe05fc8653a2"
     )
-    
+    c4_arrow_files = [
+        f"{c4_cache_dir}/c4-train-00000-of-00002.arrow",
+        f"{c4_cache_dir}/c4-train-00001-of-00002.arrow",
+    ]
+    traindata = concatenate_datasets(
+        [Dataset.from_file(arrow_file) for arrow_file in c4_arrow_files]
+    )
+
     random.seed(seed)
     trainloader = []
     inps = []
@@ -528,7 +548,16 @@ def search_select_proportions(model, dataloader, device_, seqlen, reorder_index)
         if position_ids is not None: position_ids = position_ids.to(device)
 
         with torch.no_grad():
-            inps = layer(inps, attention_mask=attention_mask, position_ids=position_ids)[0]
+            layer_kwargs = {
+                "attention_mask": attention_mask,
+                "position_ids": position_ids,
+            }
+            # Transformers >= 4.51 supplies RoPE to decoder layers explicitly.
+            if hasattr(model.model, "rotary_emb"):
+                layer_kwargs["position_embeddings"] = model.model.rotary_emb(
+                    inps, position_ids
+                )
+            inps = layer(inps, **layer_kwargs)[0]
 
         for name, keys in act_scales.items():
             if 'output' in name:

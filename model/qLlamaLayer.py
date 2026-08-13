@@ -219,13 +219,13 @@ class QLlamaAttention(nn.Module):
         super().__init__()
         self.q_kv_cache = kv_cache
         self.config = originalAttn.config
-        self.hidden_size = originalAttn.hidden_size
-        self.num_heads = originalAttn.num_heads
+        self.hidden_size = getattr(originalAttn, 'hidden_size', originalAttn.config.hidden_size)
+        self.num_heads = getattr(originalAttn, 'num_heads', originalAttn.config.num_attention_heads)
         self.head_dim = self.hidden_size // self.num_heads
-        self.num_key_value_heads = originalAttn.num_key_value_heads
+        self.num_key_value_heads = getattr(originalAttn, 'num_key_value_heads', originalAttn.config.num_key_value_heads)
         self.num_key_value_groups = originalAttn.num_key_value_groups
-        self.max_position_embeddings = originalAttn.max_position_embeddings
-        self.rope_theta = originalAttn.rope_theta
+        self.max_position_embeddings = getattr(originalAttn, 'max_position_embeddings', originalAttn.config.max_position_embeddings)
+        self.rope_theta = getattr(originalAttn, 'rope_theta', originalAttn.config.rope_theta)
         self.layer_idx = i
         self.quant_type = quant_type
         if (self.head_dim * self.num_heads) != self.hidden_size:
@@ -259,7 +259,9 @@ class QLlamaAttention(nn.Module):
             reorder_index=reorder_index[nameTemplate.format(i, 'self_attn', 'o_proj', 'input')],
             quant_type=quant_type
         )
-        self.rotary_emb = originalAttn.rotary_emb
+        # transformers >= 4.51 stores RoPE on the top-level Llama model.
+        # The decoder forward receives position_embeddings explicitly.
+        self.rotary_emb = getattr(originalAttn, "rotary_emb", None)
 
 
         self.attention_dropout=originalAttn.attention_dropout
@@ -273,7 +275,8 @@ class QLlamaAttention(nn.Module):
         self.k_proj = self.k_proj.to(*args, **kwargs)
         self.v_proj = self.v_proj.to(*args, **kwargs)
         self.o_proj = self.o_proj.to(*args, **kwargs)
-        self.rotary_emb = self.rotary_emb.to(*args, **kwargs)
+        if self.rotary_emb is not None:
+            self.rotary_emb = self.rotary_emb.to(*args, **kwargs)
       
         return self
 

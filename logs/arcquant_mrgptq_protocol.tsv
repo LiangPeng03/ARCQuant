@@ -1,0 +1,3 @@
+timestamp	model	wikitext2_ppl	c4_ppl	piqa	winogrande	boolq	arc_challenge	hellaswag	mmlu	arc_easy	lambada_openai	gsm8k	mbpp	raw_log
+20260813_021442	llama-3-8b	6.821654	10.663382	0.787813	0.764799	0.757798	0.557167	0.711750	0.643581	0.833333	0.734330	0.389689	0.442000	/home/pengliang/Desktop/ARCQuant/logs/llama-3-8b_arcquant_20260813_021442.full.log
+20260813_043331	llama-3.2-1b	11.364146	16.805262	0.724701	0.577743	0.591743	0.374573	0.560500	0.275182	0.691498	0.575393	0.028810	0.144000	/home/pengliang/Desktop/ARCQuant/logs/llama-3.2-1b_arcquant_20260813_043331.full.log
