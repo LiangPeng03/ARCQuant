@@ -414,6 +414,16 @@ template void run_down32_w_bf16_nvfp4<32, 28672>(
 
 ///////////////////////////////// Qwen /////////////////////////////////
 
+template void run_down32_x_bf16_nvfp4<32, 25600>(
+  bf16_t*, int, uint8_t*,
+  sf_t*, int, int
+);
+
+template void run_down32_w_bf16_nvfp4<32, 25600>(
+  bf16_t*, int, uint8_t*,
+  sf_t*, int, int
+);
+
 template void run_down32_x_bf16_nvfp4<32, 27648>(
   bf16_t*, int, uint8_t*,
   sf_t*, int, int

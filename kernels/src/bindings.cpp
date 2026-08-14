@@ -154,6 +154,7 @@ std::tuple<torch::Tensor, torch::Tensor> reorder_quantize_x(
         CASE_REORDER_X_32(3584)
         CASE_REORDER_X_32(18944)
         CASE_DOWN_X_32(27648)
+        CASE_DOWN_X_32(25600) // Qwen3-32B MLP down projection
         CASE_DOWN_X_32(28672)
 
         default:
@@ -203,6 +204,7 @@ std::tuple<torch::Tensor, torch::Tensor> reorder_quantize_w(
         CASE_REORDER_W_32(3584)
         CASE_REORDER_W_32(18944)
         CASE_DOWN_W_32(27648)
+        CASE_DOWN_W_32(25600) // Qwen3-32B MLP down projection
         CASE_DOWN_W_32(28672)
 
         default:

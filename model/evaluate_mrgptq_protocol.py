@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT / "model"))
 from lm_eval import simple_evaluate
 from lm_eval.models.huggingface import HFLM
 from lm_eval.utils import make_table
-from model_utils import reorder_model_llama
+from model_utils import reorder_model_llama, reorder_model_qwen
 
 
 def compute_perplexity(model, data, batch_size=1):
@@ -98,7 +98,12 @@ def build_model(args):
             str(prefix) + f"select_num_{args.calib_dataset}_{args.act_sort_metric}.pt",
             weights_only=False,
         )
-        model = reorder_model_llama(
+        reorder_model = (
+            reorder_model_qwen
+            if model.config.model_type in {"qwen2", "qwen3"}
+            else reorder_model_llama
+        )
+        model = reorder_model(
             model, device=torch.device("cuda:0"), kv_cache=False,
             reorder_index=reorder_index, select_nums=select_nums,
             quant_type="NVFP4",

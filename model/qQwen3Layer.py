@@ -76,12 +76,12 @@ class QQwen3Attention(nn.Module):
         self.scaling = original_attn.scaling
         self.attention_dropout = original_attn.attention_dropout
 
-        key = 'layers.{}.{}.{}.{}'
+        key_template = 'layers.{}.{}.{}.{}'
         def linear(name, module):
             return QLinearLayer(
                 module,
-                select_num=select_nums[key(layer_idx, 'self_attn', name, 'input')],
-                reorder_index=reorder_index[key(layer_idx, 'self_attn', name, 'input')],
+                select_num=select_nums[key_template.format(layer_idx, 'self_attn', name, 'input')],
+                reorder_index=reorder_index[key_template.format(layer_idx, 'self_attn', name, 'input')],
                 quant_type=quant_type,
             )
 
@@ -95,11 +95,11 @@ class QQwen3Attention(nn.Module):
 
         self.register_buffer(
             'q_reorder_index',
-            reorder_index[key(layer_idx, 'self_attn', 'q_proj', 'input')].to(torch.int16),
+            reorder_index[key_template.format(layer_idx, 'self_attn', 'q_proj', 'input')].to(torch.int16),
         )
         self.register_buffer(
             'o_reorder_index',
-            reorder_index[key(layer_idx, 'self_attn', 'o_proj', 'input')].to(torch.int16),
+            reorder_index[key_template.format(layer_idx, 'self_attn', 'o_proj', 'input')].to(torch.int16),
         )
 
     @torch.no_grad()
@@ -173,12 +173,12 @@ class QQwen3MLP(nn.Module):
                  layer_idx, quant_type):
         super().__init__()
         self.quant_type = quant_type
-        key = 'layers.{}.{}.{}.{}'
+        key_template = 'layers.{}.{}.{}.{}'
         def linear(name, module):
             return QLinearLayer(
                 module,
-                select_num=select_nums[key(layer_idx, 'mlp', name, 'input')],
-                reorder_index=reorder_index[key(layer_idx, 'mlp', name, 'input')],
+                select_num=select_nums[key_template.format(layer_idx, 'mlp', name, 'input')],
+                reorder_index=reorder_index[key_template.format(layer_idx, 'mlp', name, 'input')],
                 quant_type=quant_type,
             )
 
@@ -188,11 +188,11 @@ class QQwen3MLP(nn.Module):
         self.act_fn = original_mlp.act_fn
         self.register_buffer(
             'up_reorder_index',
-            reorder_index[key(layer_idx, 'mlp', 'up_proj', 'input')].to(torch.int16),
+            reorder_index[key_template.format(layer_idx, 'mlp', 'up_proj', 'input')].to(torch.int16),
         )
         self.register_buffer(
             'down_reorder_index',
-            reorder_index[key(layer_idx, 'mlp', 'down_proj', 'input')].to(torch.int16),
+            reorder_index[key_template.format(layer_idx, 'mlp', 'down_proj', 'input')].to(torch.int16),
         )
 
     @torch.no_grad()

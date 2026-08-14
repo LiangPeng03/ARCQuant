@@ -25,6 +25,8 @@ parser.add_argument(
 parser.add_argument("--act_sort_metric", type=str, help="the metric used to sort the activations.")
 parser.add_argument("--samples", type=int, default=128)
 parser.add_argument("--seqlen", type=int, default=2048)
+parser.add_argument("--seed", type=int, default=0,
+                    help="Seed used to sample the calibration data.")
 
 
 args = parser.parse_args()
@@ -59,7 +61,7 @@ def main():
     if not os.path.exists(act_scales_filename):
         print("Generating activation stats...")
         dataloader, _ = get_dataset(
-            nsamples=args.samples, seed=0, seqlen=args.seqlen, tokenizer=enc
+            nsamples=args.samples, seed=args.seed, seqlen=args.seqlen, tokenizer=enc
         )
 
         act_scales = get_act_stats(
@@ -78,7 +80,7 @@ def main():
     print("Getting proportions...")
 
     _, inps = get_dataset(
-                nsamples=32, seed=0, tokenizer=enc, seqlen=args.seqlen
+                nsamples=32, seed=args.seed, tokenizer=enc, seqlen=args.seqlen
             )
     select_num, average_bits = search_select_proportions(model, inps, "cuda", args.seqlen, reorder_index)
     
