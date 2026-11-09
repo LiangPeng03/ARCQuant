@@ -89,7 +89,7 @@ def build_model(args):
 
     if args.mode == "arcquant":
         model_name = Path(args.model.rstrip("/")).name.lower()
-        prefix = ROOT / "saved" / f"{model_name}_"
+        prefix = args.cache_dir / f"{model_name}_"
         reorder_index = torch.load(
             str(prefix) + f"reorder_index_{args.calib_dataset}_{args.act_sort_metric}.pt",
             weights_only=False,
@@ -165,6 +165,7 @@ def main():
     parser.add_argument("--mode", choices=("fp16", "arcquant"), default="fp16")
     parser.add_argument("--dtype", choices=("bfloat16", "float16"), default="bfloat16")
     parser.add_argument("--calib-dataset", default="c4")
+    parser.add_argument("--cache-dir", type=Path, default=ROOT / "saved")
     parser.add_argument("--act-sort-metric", default="max")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--sequence-length", type=int, default=2048)
