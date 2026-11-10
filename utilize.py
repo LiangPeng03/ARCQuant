@@ -374,7 +374,10 @@ def get_c4(nsamples, seed, seqlen, tokenizer):
             encoded = tokenizer(text, return_tensors='pt')
             
             if encoded.input_ids.shape[1] >= seqlen:
-                i = random.randint(0, encoded.input_ids.shape[1] - seqlen - 1)
+                # An exactly seqlen-token document has only the start offset 0.
+                # Retain the existing random range for longer documents.
+                i = (0 if encoded.input_ids.shape[1] == seqlen else
+                     random.randint(0, encoded.input_ids.shape[1] - seqlen - 1))
                 inp = encoded.input_ids[:, i : i + seqlen]
                 break
         
